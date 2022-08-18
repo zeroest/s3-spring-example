@@ -1,0 +1,8 @@
+
+aws:
+  s3:
+    region: ap-northeast-2
+    bucket:
+      name: s3-spring-example
+    accessKey:
+    secretKey:

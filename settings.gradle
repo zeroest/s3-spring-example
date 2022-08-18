@@ -1,0 +1,4 @@
+rootProject.name = 's3-spring'
+
+include 's3-core'
+include 's3-api'
