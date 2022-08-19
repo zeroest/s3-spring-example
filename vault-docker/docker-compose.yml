@@ -1,0 +1,16 @@
+
+version: "2"
+
+services:
+  vault:
+    image: vault:latest
+    container_name: vault
+    volumes:
+      - ./vault/config:/vault/config
+      - ./vault/data:/vault/data
+    ports:
+      - 8200:8200
+    # cap_add:
+    #  - IPC_LOCK
+    # command: vault server -config=/vault/config/config.hcl
+

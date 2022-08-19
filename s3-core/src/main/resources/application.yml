@@ -1,8 +1,28 @@
 
-aws:
-  s3:
-    region: ap-northeast-2
-    bucket:
-      name: s3-spring-example
-    accessKey:
-    secretKey:
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    open-in-view: false
+  # https://docs.spring.io/spring-cloud-vault/docs/current/reference/html/config-data.html
+
+  config:
+    import: vault://
+  cloud:
+    vault:
+      scheme: http
+      host: localhost
+      port: 8200
+      token: hvs.tMIc2ndqS1OjsRlctSYjBDv3
+      kv:
+        default-context: s3-spring-example
+#        application-name: s3-user

@@ -41,6 +41,30 @@ Set permission group or directly
 
 ### Implement
 
-[[Refer] Spring Boot에서 AWS S3와 연계한 파일 업로드처리](https://antdev.tistory.com/93)
+[[Refer] Spring Boot에서 AWS S3와 연계한 파일 업로드처리](https://antdev.tistory.com/93)  
+
+[[Refer] Spring Cloud AWS를 활용하여 Spring Boot에서 AWS S3 연동하기](https://preamtree.tistory.com/83)
+
+#### vault 반영
+
+```bash
+WARNING! dev mode is enabled! In this mode, Vault runs entirely in-memory
+and starts unsealed with a single unseal key. The root token is already
+authenticated to the CLI, so you can immediately begin using Vault.
+
+You may need to set the following environment variable:
+
+    $ export VAULT_ADDR='http://0.0.0.0:8200'
+
+The unseal key and root token are displayed below in case you want to
+seal/unseal the Vault or re-authenticate.
+
+Unseal Key: FXRs8L5vHbx7Sl34M5cJg4bXFsUHCsIqGiA1gkUTMCc=
+Root Token: hvs.tMIc2ndqS1OjsRlctSYjBDv3
+
+Development mode should NOT be used in production installations!
+```
+
+![vault-kv-setup](./img/vault-kv-setup.png)
 
 ---

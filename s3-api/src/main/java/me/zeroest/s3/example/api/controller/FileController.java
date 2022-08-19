@@ -17,12 +17,15 @@ public class FileController {
 
     private final FileService fileService;
 
-    @GetMapping(produces = {MimeTypeUtils.IMAGE_PNG_VALUE})
-    public byte[] download(
-            @RequestParam String key,
-            @RequestParam String format
+    @GetMapping(produces = {
+            MimeTypeUtils.IMAGE_JPEG_VALUE,
+            MimeTypeUtils.IMAGE_PNG_VALUE,
+            MimeTypeUtils.IMAGE_GIF_VALUE
+    })
+    public ResponseEntity<byte[]> download(
+            @RequestParam String key
     ) throws IOException {
-        return fileService.download(key, format);
+        return ResponseEntity.ok(fileService.download(key));
     }
 
     @PostMapping
