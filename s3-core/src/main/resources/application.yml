@@ -1,4 +1,9 @@
 
+aws:
+  s3:
+    bucket:
+      name: s3-spring-example
+
 spring:
   h2:
     console:
@@ -13,16 +18,15 @@ spring:
 
   jpa:
     open-in-view: false
-  # https://docs.spring.io/spring-cloud-vault/docs/current/reference/html/config-data.html
 
-  config:
-    import: vault://
-  cloud:
-    vault:
-      scheme: http
-      host: localhost
-      port: 8200
-      token: hvs.tMIc2ndqS1OjsRlctSYjBDv3
-      kv:
-        default-context: s3-spring-example
-#        application-name: s3-user
+  # https://docs.spring.io/spring-cloud-vault/docs/current/reference/html/config-data.html
+#  config:
+#    import: vault://
+#  cloud:
+#    vault:
+#      scheme: http
+#      host: localhost
+#      port: 8200
+#      token: hvs.tMIc2ndqS1OjsRlctSYjBDv3
+#      kv:
+#        default-context: s3-spring-example

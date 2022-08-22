@@ -5,13 +5,13 @@
 
 Create S3 bucket
 
-![create-s3-bucket](./img/1create-s3-bucket.png)
+![create-s3-bucket](./img/access-key-base/1create-s3-bucket.png)
 
 Create IAM user
 
 - Credential type - Access Key 기반 설정하도록한다.
 
-![create-iam-user](./img/2-0create-iam-user.png)
+![create-iam-user](./img/access-key-base/2-0create-iam-user.png)
 
 Set permission group or directly
 
@@ -23,9 +23,9 @@ cf) IAM JSON 설정 레퍼런스
 - [IAM JSON policy elements reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html)
 - [AWS JSON policy elements: Principal](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html)
 
-![set-permission-group](./img/2-1set-permission-group.png)
+![set-permission-group](./img/access-key-base/2-1set-permission-group.png)
 
-![set-permission-directly](./img/2-2set-permission-directly.png)
+![set-permission-directly](./img/access-key-base/2-2set-permission-directly.png)
 
 ### Gradle Setup
 
@@ -63,7 +63,82 @@ Root Token: hvs.tMIc2ndqS1OjsRlctSYjBDv3
 Development mode should NOT be used in production installations!
 ```
 
-![vault-kv-setup](./img/vault-kv-setup.png)
+![vault-kv-setup](./img/access-key-base/vault-kv-setup.png)
+
+---
+
+## Role Base
+
+[[Refer] AccessKey 대신 IAM 역할을 활용한 EC2 권한 부여](https://www.youtube.com/watch?v=vOI_oAP_j04)
+
+### EC2에 권한 부여
+
+IAM 자격 증명을 등록 
+- IAM사용자를 생성하고 IAM 자격증명을 발급받아 EC2에 등록
+- AWS Configure를 통해 자격 증명을 파일로 등록 (~/.aws/credentials)
+- 관리가 어렵고 바꾸기 힘듬
+
+IAM 역할을 부여
+- 권한이 부여된 IAM 역할을 만들고 EC2에 부여
+- 관리가 쉽고 교체가 쉬움
+- 내부적으로 지속적으로 자격증명을 변경
+  - 뛰어난 보안성
+  
+#### 실습
+
+Role 생성
+- EC2 Service 타겟 Role 설정
+
+![create-role](./img/role-base/1-1create-role.png)
+
+![create-role](./img/role-base/1-2create-role.png)
+
+![create-role](./img/role-base/1-3create-role.png)
+
+EC2 생성
+- 테스트를 위한 EC2 생성
+
+![create-ec2](./img/role-base/2create-ec2.png)
+
+AWS CLI S3 권한 확인
+
+```bash
+[ec2-user@ip-192-168-0-50 ~]$ aws s3 ls
+2022-08-18 13:44:28 s3-spring-example
+```
+
+Application S3 권한 확인
+
+```bash
+[ec2-user@ip-192-168-0-50 ~]$ $(aws ecr get-login --no-include-email --region ap-northeast-2)
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /home/ec2-user/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+```
+
+```bash
+[ec2-user@ip-192-168-0-50 ~]$ docker pull account-id.dkr.ecr.ap-northeast-2.amazonaws.com/s3-spring
+
+[ec2-user@ip-192-168-0-50 ~]$ docker run -d -p 8080:8080 account-id.dkr.ecr.ap-northeast-2.amazonaws.com/s3-spring
+```
+
+이미지 업로드
+```bash
+curl --location --request POST 'http://52.79.231.56:8080/file' \
+--form 'file=@"/home/user/Pictures/Chunk.png"'
+```
+
+![ec2-upload-file-test](./img/role-base/3-1ec2-upload-file-test.png)
+
+이미지 다운로드
+```bash
+curl --location --request GET 'http://52.79.231.56:8080/file?key=e3d7b415-e5b3-4c68-aef0-3cd8f4e0ad06'
+```
+
+![ec2-download-file-test](./img/role-base/3-2ec2-download-file-test.png)
 
 ---
 

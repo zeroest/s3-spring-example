@@ -2,6 +2,7 @@ package me.zeroest.s3.example.core.util;
 
 import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.util.UUID;
 
 public class S3FileUtil {
@@ -41,5 +42,15 @@ public class S3FileUtil {
      */
     public static String createPath(String fileId, String format) {
         return String.format("%s/%s.%s", BASE_DIR, fileId, format);
+    }
+
+    public static void validFileFolder(File path){
+        boolean isDirectoryCreated = path.exists();
+        if (!isDirectoryCreated) {
+            isDirectoryCreated = path.mkdirs();
+        }
+        if (!isDirectoryCreated) {
+            throw new IllegalStateException("File folder create error");
+        }
     }
 }

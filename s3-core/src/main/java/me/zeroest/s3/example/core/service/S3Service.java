@@ -34,6 +34,7 @@ public class S3Service {
 
     public PutObjectResult putObject(String fullPath, MultipartFile multipartFile) {
         File file = new File(S3FileUtil.getLocalHomeDirectory(), fullPath);
+        S3FileUtil.validFileFolder(file);
 
         try {
             multipartFile.transferTo(file);

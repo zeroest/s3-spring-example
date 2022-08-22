@@ -13,11 +13,14 @@ buildscript {
         springDependencyManagementVersion="1.0.12.RELEASE"
         awsJavaSdkVersion="1.11.1000"
         springCloudVersion="2021.0.3"
+        jibGradleVersion="3.2.1"
     }
 
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "io.spring.gradle:dependency-management-plugin:${springDependencyManagementVersion}"
+
+        classpath "gradle.plugin.com.google.cloud.tools:jib-gradle-plugin:${jibGradleVersion}"
     }
 }
 
