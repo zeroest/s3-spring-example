@@ -312,3 +312,64 @@ AssumeRole을 통한 임시 자격 증명 획득
 [ec2-user@ip-192-168-0-77 ~]$ aws s3 ls
 2022-08-18 13:44:30 s3-spring-example
 ```
+
+---
+
+# S3 Presigned URL
+
+[[Refer] S3의 파일을 안전하게 공유하고 싶다면: S3 Presigned URL](https://youtu.be/v2yJLMltX1Y)
+
+## S3의 파일을 공유하는 방법
+
+1. 모든 파일을 퍼블릭으로 만들기
+- 장점: 별도의 관리가 필요 없음
+- 단점: 아무나 파일 다운로드 가능
+
+2. IAM 자격증명 공유(Access Key Pair)
+- 장점: 지정한 사람만 공유 가능
+- 단점
+  - 자격증명 유출/변경 시 공유자 모두에게 다시 부여 필요
+  - 자격증명의 관리가 어려움
+  
+3. IAM 사용자 부여하기
+- 장점: 지정한 사람만 공유 가능
+- 단점
+  - IAM 사용자 숫자 제한(5000개)
+  - 모든 유저에게 IAM 사용자를 부여하는 과정 필요
+  - 유지보수의 어려움
+  
+## Presigned URL
+
+미리 서명된 URL 공유
+- 장점
+  - 지정한 사람만 공유 가능
+  - 만료기간 설정 가능
+  - 권한 관리 가능
+  - HTTP 기반으로 접근 가
+
+- 특징
+  - S3의 파일을 안전하게 공유하고 싶을 때 사용
+  - 생성자가 가진 권한으로  파일에 접근 가능한 임시 URL을 생성
+    - URL의 만료 기간 지정 가능(default: 1h)
+    - Method[GET(download),POST(upload) 등] 설정 가능
+  - URL의 권한은 생성자가 가진 권한중 일부 혹은 전체 사용
+    - ex) 생성자가 GET 권한이 없다면 URL로 GET 불가능
+  
+### 실습
+
+[[Doc] AWS CLI S3 Configuration](https://docs.aws.amazon.com/cli/latest/topic/s3-config.html)
+
+> addressing_style - Specifies which addressing style to use. This controls if the bucket name is in the hostname or part of the URL. Value values are: path, virtual, and auto. The default value is auto.
+ 
+```bash
+[ec2-user@ip-192-168-0-50 ~]$ aws configure set default.s3.addressing_style virtual
+```
+
+[[Doc] AWS CLI S3 Presign](https://docs.aws.amazon.com/cli/latest/reference/s3/presign.html)
+
+```bash
+# aws s3 presign s3://[버킷명]/[파일경로] --region ap-northeast-2 --expires-in 10(sec) 
+[ec2-user@ip-192-168-0-50 ~]$ aws s3 presign s3://s3-spring-example/images/4073e2f8-34b7-4e37-b58d-a1c7cd283135.png --region ap-northeast-2
+
+https://s3-spring-example.s3.ap-northeast-2.amazonaws.com/images/4073e2f8-34b7-4e37-b58d-a1c7cd283135.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600&X-Amz-Date=20220822T182650Z&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAIaDmFwLW5vcnRoZWFzdC0yIkcwRQIgMvJzWH8tsI46aQ6BTjmD7oEWz4de4qz1Bo2aJcNAiQICIQCl3u6GzCV7hd5jeowhIfnFGdpinX18Y8xOMYpk5%2B%2BzmCriBAh8EAMaDDIyNTk1MzI0MDkxNCIMVA%2FUR3P3JL7O1zUMKr8EFMR0UVC2kMclY8zDshDSXsH6kKZ9XK%2FpWwZaw3NLI%2FzpPyHRFk692kD%2BMu%2FToK7BkAl2GcD8gLxUHVu6OBALcYnHpN6CLKv70i97eZNrmPnFrjf5DoCXPejIxWPQYYqWoCjYfZ4eFmzzLW1q1%2FGVhEXtSvKDxBjNVXE2r9fmNZ3sJl%2Bq%2FAf%2B0SAGKJ6%2BTQCv%2FYsShWm3VNgUldArsvClyoQUpyiUuupw8rW1stwGc%2F2hB79cZXeTQUCVItznPSgZZtPkkgmLOJ6KNprJ2sfY9xQOI5PlLMWkJQu5cJq9rsThO%2FtTHqtWdrAzI5MBNTlvfWEnPsF%2Bo77cnFn1kA2GZ4N0yG6A3mW%2FPTUHmikZoCUxoM8hlelnxnt8B%2FdLAPGAKVjwQpQHiqnVyu%2FdpLLBXKcR%2B3rgekZ05CHz5F1O4xWZmNJrcxumj2dbdbnG0GSDbWbLUZayfIYCEkJrg37KYBiQ5gFpTyvQMsvw%2FCOxPZFywQ7nHq7XzHH3PsY7m2jsb3h%2BGxy1S3AMzkMtbK7%2FN3oPeEakDEpHe1MhQLmYaCVPy%2Bq48zfeGLssf38rFrrBQpvvcIOAg5eoIOFSnmk1N65Db%2FAS82RTTsg3KS4fj4y5jx63x07TeI9rgP7X0n%2Bg0%2BK5rnfmQZYUW8G461Z03%2B8Mdw55BwfS%2BpGGU0aHxv7u8j1xY5fsK2aJyq4KhT6ufuB5UEC6PTLjeZITMmj3R2qUNe1M6oUO2fc8G8ue9Rm8qP2oMu6B0LZXDx4MwcEw25OPmAY6qQEf6c3m%2B4zODrB6JejUSS4JjqOEdP2AlwRmjkjF2OHJBX75IiMmwizBFqdQA2lI6z8nQ6MoQcl9%2FTWRcU2iG4c%2FCKGr2wvuDZ5b31SsIra5xPJfXzw81jAlg%2FkOJ4HSj2t3vTsoWeuzTW%2Fx2Z0K%2FgY2fh0HZ%2F9DPnSf6X7dHxbRks0s0xmKgmVaHgshBuRO%2FVz5Pild%2B9TC4Ujwl%2Fu%2FsX6rSci41B6Vz7Ao&X-Amz-Credential=ASIATJG6425JO37QXDEN%2F20220822%2Fap-northeast-2%2Fs3%2Faws4_request&X-Amz-Signature=011e18c265a7812ffdcb431b9c30334e4eae844aef00c824a1fb11643bd19252
+```

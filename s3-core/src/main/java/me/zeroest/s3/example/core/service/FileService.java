@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URL;
 
 @RequiredArgsConstructor
 @Service
@@ -21,6 +22,12 @@ public class FileService {
         FileDetail fileDetail = fileMetadataService.findById(key);
         S3Object object = s3Service.getObject(fileDetail.getId(), fileDetail.getFormat());
         return IOUtils.toByteArray(object.getObjectContent());
+    }
+
+    public String getPresignedPath(String key) {
+        FileDetail fileDetail = fileMetadataService.findById(key);
+        URL presignedUrl = s3Service.getPresignedURL(fileDetail.getId(), fileDetail.getFormat());
+        return presignedUrl.toString();
     }
 
     public FileDetail upload(MultipartFile multipartFile) {

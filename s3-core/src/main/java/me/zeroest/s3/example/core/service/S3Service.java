@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.net.URL;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Component
@@ -30,6 +34,12 @@ public class S3Service {
         String path = S3FileUtil.createPath(key, format);
         GetObjectRequest getObjectRequest = new GetObjectRequest(BUCKET_NAME, path);
         return amazonS3.getObject(getObjectRequest);
+    }
+
+    public URL getPresignedURL(String key, String format) {
+        String path = S3FileUtil.createPath(key, format);
+        URL presignedUrl = amazonS3.generatePresignedUrl(BUCKET_NAME, path, Date.valueOf(LocalDate.now().plus(1L, ChronoUnit.DAYS)));
+        return presignedUrl;
     }
 
     public PutObjectResult putObject(String fullPath, MultipartFile multipartFile) {

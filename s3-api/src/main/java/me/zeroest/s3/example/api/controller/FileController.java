@@ -8,6 +8,7 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @RestController
@@ -26,6 +27,15 @@ public class FileController {
             @RequestParam String key
     ) throws IOException {
         return ResponseEntity.ok(fileService.download(key));
+    }
+
+    @GetMapping("presigned")
+    public void downloadPresigned(
+            HttpServletResponse response,
+            @RequestParam String key
+    ) throws IOException {
+        String presignedPath = fileService.getPresignedPath(key);
+        response.sendRedirect(presignedPath);
     }
 
     @PostMapping
