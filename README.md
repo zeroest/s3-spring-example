@@ -282,8 +282,9 @@ AssumeRole을 통한 임시 자격 증명 획득
 
 ```bash
 [ec2-user@ip-192-168-0-77 ~]$ aws sts assume-role \
->  --role-arn arn:aws:iam::account-id:role/s3-full-access-role \
->  
+  --role-arn arn:aws:iam::account-id:role/s3-full-access-role \
+  --role-session-name s3-full-access-session
+  
 {
     "AssumedRoleUser": {
         "AssumedRoleId": "AROATJ:s3-full-access-session", 
