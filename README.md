@@ -183,7 +183,7 @@ Role 생성
 EC2 생성
 - 테스트를 위한 EC2 생성
 
-![create-role](./img/iam/5-2create-role.png)
+![create-ec2-instance](./img/iam/6create-ec2-instance.png)
 
 AWS CLI 계정 설정
 
