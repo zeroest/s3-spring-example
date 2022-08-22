@@ -17,7 +17,11 @@ Set permission group or directly
 
 - 편의를 위해 S3FullAccess 권한 반영.
 - 자세한 권한 설정은 문서를 참조하여 반영하도록 한다.
-- [Actions, resources, and condition keys for Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/list_amazons3.html)
+  - [Actions, resources, and condition keys for Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/list_amazons3.html)
+
+cf) IAM JSON 설정 레퍼런스
+- [IAM JSON policy elements reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html)
+- [AWS JSON policy elements: Principal](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html)
 
 ![set-permission-group](./img/2-1set-permission-group.png)
 
@@ -154,8 +158,81 @@ Token: 임시 자격 증명에만 사용, 임시 자격 증명이 유효한지 �
   - Token은 임시 자격 증명의 유효성을 검증(유효기간 등)
 - 만료된 자격증명을 사용할 경우 모든 요청은 Fail
 
-cf) IAM JSON 설정 레퍼런스
-- [IAM JSON policy elements reference](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html)
-- [AWS JSON policy elements: Principal](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html)
+#### 실습
 
----
+유저 생성
+- 권한 없이 유저 생성
+- 이후 [add inline policy]를 통해 sts:AssumeRole 권한 부여
+
+![create-user](./img/iam/1create-user.png)
+
+![create-user-non-permission](./img/iam/2create-user-non-permission.png)
+
+![create-policy](./img/iam/4-1create-policy.png)
+
+![create-policy](./img/iam/4-2create-policy.png)
+
+Role 생성
+- AWS account 타입으로 로그인한 계정의 Account ID로 생성
+- S3 권한으로 테스트 하도록 한다
+
+![create-role](./img/iam/5-1create-role.png)
+
+![create-role](./img/iam/5-2create-role.png)
+
+EC2 생성
+- 테스트를 위한 EC2 생성
+
+![create-role](./img/iam/5-2create-role.png)
+
+AWS CLI 계정 설정
+
+```bash
+[ec2-user@ip-192-168-0-77 ~]$ aws configure
+AWS Access Key ID [None]: access-key
+AWS Secret Access Key [None]: secret-key
+Default region name [None]: ap-northeast-2
+Default output format [None]: json
+```
+
+권한이 없는 상태에서 S3 커맨드 테스트
+
+```bash
+[ec2-user@ip-192-168-0-77 ~]$ aws s3 ls
+
+An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
+```
+
+AssumeRole을 통한 임시 자격 증명 획득
+
+```bash
+[ec2-user@ip-192-168-0-77 ~]$ aws sts assume-role \
+>  --role-arn arn:aws:iam::account-id:role/s3-full-access-role \
+>  
+{
+    "AssumedRoleUser": {
+        "AssumedRoleId": "AROATJ:s3-full-access-session", 
+        "Arn": "arn:aws:sts::account-id:assumed-role/s3-full-access-role/s3-full-access-session"
+    }, 
+    "Credentials": {
+        "SecretAccessKey": "T921", 
+        "SessionToken": "IHZzVeue27PUz6YauCt+p+ULPs=", 
+        "Expiration": "2022-08-22T16:38:26Z", 
+        "AccessKeyId": "access-id"
+    }
+}
+```
+
+환경변수 설정 및 CLI 호출
+
+```bash
+[ec2-user@ip-192-168-0-77 ~]$ export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
+  $(aws sts assume-role \
+  --role-arn arn:aws:iam::account-id:role/s3-full-access-role \
+  --role-session-name s3-full-access-session \
+  --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
+  --output text))
+
+[ec2-user@ip-192-168-0-77 ~]$ aws s3 ls
+2022-08-18 13:44:30 s3-spring-example
+```
