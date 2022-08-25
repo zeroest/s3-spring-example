@@ -1,0 +1,17 @@
+
+spring:
+# https://docs.spring.io/spring-cloud-vault/docs/current/reference/html/config-data.html
+  config:
+    import: vault://
+  cloud:
+    vault:
+      scheme: http
+      host: localhost
+      port: 8200
+      token: s.WVGd6Yy9XscJwBzhfwGUcWin
+      kv:
+        default-context: s3-spring-example
+
+
+# s.WVGd6Yy9XscJwBzhfwGUcWin
+# 0Whn106G/x97F/A17pF1fRxx05+S2C4CwujGgONoLDc=

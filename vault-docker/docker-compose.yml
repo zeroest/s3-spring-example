@@ -10,7 +10,11 @@ services:
       - ./vault/data:/vault/data
     ports:
       - 8200:8200
-    # cap_add:
-    #  - IPC_LOCK
+    environment:
+      VAULT_API_ADDR: http://localhost:8200
+      VAULT_DEV_ROOT_TOKEN_ID: '0000'
+      # VAULT_LOCAL_CONFIG: '{"backend":{"file":{"path":"/vault/file"}}}'
+    cap_add:
+     - IPC_LOCK
     # command: vault server -config=/vault/config/config.hcl
 
